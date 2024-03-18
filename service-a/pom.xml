@@ -24,6 +24,11 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
+    <dependency>
+      <groupId>com.example</groupId>
+			<artifactId>library-a</artifactId>
+      <version>${library-a.version}</version>
+    </dependency>
 
 		<dependency>
 			<groupId>org.projectlombok</groupId>
