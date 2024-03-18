@@ -24,6 +24,7 @@ done
 #
 
 last_tag=$(git describe --tags --abbrev=0)
+changed_libraries=()
 
 #
 # build common libraries
@@ -41,11 +42,23 @@ for folder in */; do
 
     if [ $is_library == true ]; then
         commits=$(git log $last_tag..HEAD -- $module_name)
-        if [ -n "$commits" ]; then    
-            echo "$commits"
+        if [ -n "$commits" ]; then
+            snapshot_version=$(mvn --color never help:evaluate -Dexpression=project.version -q -DforceStdout -f $module_name)
+            release_version=$(echo "$snapshot_version" | sed "s/-SNAPSHOT//" | sed -r "s/\x1B\[([0-9]{1,2}(;[0-9]{1,2})?)?[mGK]//g")
+
+            echo "$module_name current version $snapshot_version next release version $release_version"
+
+            mvn versions:set -pl $module_name -DnewVersion=$release_version
+            mvn clean install -pl $module_name
+            mvn versions:update-property -Dproperty="$module_name.version" -DnewVersion=$release_version
+
+            changed_libraries+=("$module_name")
+            
         fi
     fi
 done
+
+echo "${changed_libraries[@]}"
 
 #
 # build modules
